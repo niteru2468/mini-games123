@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ミニゲーム集</title>
+</head>
+<body style="text-align:center; background:black; color:white;">
+
+  <h1>🎮 ミニゲーム集</h1>
+
+  <br>
+
+  <button onclick="location.href='shooting.html'">
+    🔫 シューティング
+  </button>
+
+  <br><br>
+
+  <button onclick="location.href='baseball.html'">
+    ⚾ 野球ゲーム
+  </button>
+
+</body>
+</html>
