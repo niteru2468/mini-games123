@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>野球ゲーム（打球演出）</title>
+
+  <style>
+    body {
+      text-align: center;
+      background: green;
+      color: white;
+      font-family: Arial;
+    }
+
+    canvas {
+      background: linear-gradient(green, darkgreen);
+      margin-top: 10px;
+      border: 2px solid white;
+    }
+  </style>
+</head>
+<body>
+
+<h1>⚾ 野球ゲーム</h1>
+<p id="status">タイミングよく打て！</p>
+<p>Score: <span id="score">0</span> | Strike: <span id="strike">0</span> | Out: <span id="out">0</span></p>
+
+<canvas id="game" width="300" height="200"></canvas><br>
+<button onclick="swing()">バットを振る！</button>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let ballX = 0;
+let ballY = 100;
+let speed = 3;
+
+let score = 0;
+let strike = 0;
+let out = 0;
+
+// ===== 打球状態 =====
+let isHit = false;
+let hitVX = 0;
+let hitVY = 0;
+
+// 変化球
+let dy = 0;
+
+// ===== 描画 =====
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.arc(ballX, ballY, 10, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (!isHit) {
+    // 通常の投球
+    ballX += speed;
+    ballY += dy;
+
+    if (ballY < 20 || ballY > 180) {
+      dy *= -1;
+    }
+
+    if (ballX > canvas.width) {
+      strike++;
+      updateUI();
+
+      if (strike >= 3) {
+        out++;
+        strike = 0;
+      }
+
+      resetBall();
+    }
+
+  } else {
+    // ===== 打球処理 =====
+    ballX += hitVX;
+    ballY += hitVY;
+
+    hitVY += 0.3; // 重力
+
+    // 画面外に出たらリセット
+    if (ballY > canvas.height || ballX > canvas.width) {
+      isHit = false;
+      resetBall();
+    }
+  }
+
+  // ゲームオーバー
+  if (out >= 3) {
+    ctx.fillStyle = "white";
+    ctx.font = "24px Arial";
+    ctx.fillText("GAME OVER", 70, 100);
+    return;
+  }
+
+  requestAnimationFrame(draw);
+}
+
+// ===== スイング =====
+function swing() {
+  if (out >= 3 || isHit) return;
+
+  let centerX = canvas.width / 2;
+  let centerY = 100;
+
+  let diffX = Math.abs(ballX - centerX);
+  let diffY = Math.abs(ballY - centerY);
+
+  let result = "";
+
+  if (diffX < 10 && diffY < 10) {
+    result = "ホームラン！🔥";
+    score += 3;
+
+    // 強い打球
+    isHit = true;
+    hitVX = 5;
+    hitVY = -6;
+
+    speed += 0.5;
+
+  } else if (diffX < 30 && diffY < 20) {
+    result = "ヒット！";
+    score += 1;
+
+    // 弱い打球
+    isHit = true;
+    hitVX = 3;
+    hitVY = -4;
+
+  } else {
+    result = "空振り…";
+    strike++;
+  }
+
+  document.getElementById("status").innerText = result;
+
+  if (strike >= 3) {
+    out++;
+    strike = 0;
+  }
+
+  updateUI();
+}
+
+// ===== リセット =====
+function resetBall() {
+  ballX = 0;
+  ballY = 100;
+  dy = (Math.random() * 2 - 1) * 2;
+}
+
+// ===== UI =====
+function updateUI() {
+  document.getElementById("score").innerText = score;
+  document.getElementById("strike").innerText = strike;
+  document.getElementById("out").innerText = out;
+}
+
+resetBall();
+draw();
+</script>
+
+</body>
+</html>
